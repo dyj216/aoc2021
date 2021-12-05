@@ -46,6 +46,24 @@ fn solve_day_1(task: i8, raw_inputs: Vec<String>) -> i32 {
     }
 }
 
+fn solve_day_2(raw_inputs: Vec<String>) -> i32 {
+    let mut horizontal = 0;
+    let mut vertical = 0;
+    for movement in raw_inputs {
+        let mut iter = movement.split_whitespace();
+        let direction = iter.next();
+        let amount = iter.next().unwrap().parse::<i32>().unwrap();
+        match direction {
+            Some("forward") => horizontal += amount,
+            Some("back") => horizontal += amount,
+            Some("up") => vertical -= amount,
+            Some("down") => vertical += amount,
+            _ => panic!("incorrect input")
+        }
+    }
+    return horizontal * vertical
+}
+
 fn main() {
     let selector = DayTaskSelector::new(env::args()).unwrap_or_else(|err| {
         println!("Problem parsing arguments: {}", err);
@@ -54,6 +72,7 @@ fn main() {
     let raw_inputs = read_input_file(&format!("day/{}/input", selector.day));
     match selector.day {
         1 => println!("{}", solve_day_1(selector.task, raw_inputs)),
+        2 => println!("{}", solve_day_2(raw_inputs)),
         _ => println!("Not implemented (yet)")
     }
 }
