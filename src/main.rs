@@ -77,6 +77,22 @@ fn solve_day_2(task: i8, raw_inputs: Vec<String>) -> i32 {
     return horizontal * vertical;
 }
 
+fn solve_day_3(task: i8, raw_inputs: Vec<String>) -> i32 {
+    let inputs_size = raw_inputs.len();
+    let mut result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].to_vec();
+    for input in raw_inputs {
+        for (index, bit) in input.chars().enumerate() {
+            match bit {
+                '1' => result[index] += 1,
+                _ => ()
+            }
+        }
+    }
+    let gamma = result.iter().map(|x| if x > &(inputs_size / 2) {1} else {0}).fold(0, |acc, bit| (acc << 1) ^ bit);
+    let epsilon = result.iter().map(|x| if x < &(inputs_size / 2) {1} else {0}).fold(0, |acc, bit| (acc << 1) ^ bit);
+    return gamma * epsilon
+}
+
 fn main() {
     let selector = DayTaskSelector::new(env::args()).unwrap_or_else(|err| {
         println!("Problem parsing arguments: {}", err);
@@ -86,6 +102,7 @@ fn main() {
     match selector.day {
         1 => println!("{}", solve_day_1(selector.task, raw_inputs)),
         2 => println!("{}", solve_day_2(selector.task, raw_inputs)),
+        3 => println!("{}", solve_day_3(selector.task, raw_inputs)),
         _ => println!("Not implemented (yet)")
     }
 }
