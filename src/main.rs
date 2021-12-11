@@ -61,13 +61,12 @@ fn solve_day_2(task: i8, raw_inputs: Vec<String>) -> i32 {
                 Some("down") => vertical += amount,
                 _ => panic!("incorrect input")
             }
-        }
-        else {
+        } else {
             match direction {
                 Some("forward") => {
                     horizontal += amount;
                     vertical = vertical + aim * amount;
-                },
+                }
                 Some("up") => aim -= amount,
                 Some("down") => aim += amount,
                 _ => panic!("incorrect input")
@@ -78,9 +77,16 @@ fn solve_day_2(task: i8, raw_inputs: Vec<String>) -> i32 {
 }
 
 fn solve_day_3(task: i8, raw_inputs: Vec<String>) -> i32 {
-    let inputs_size = raw_inputs.len();
-    let mut result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].to_vec();
-    for input in raw_inputs {
+    let inputs_size = raw_inputs.len() as i32;
+    let mut result = count_bits_in_binary_inputs(raw_inputs);
+    let gamma = result.iter().map(|x| if x > &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
+    let epsilon = result.iter().map(|x| if x < &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
+    return gamma * epsilon;
+}
+
+fn count_bits_in_binary_inputs(inputs: Vec<String>) -> Vec<i32> {
+    let mut result = vec![0; 12];
+    for input in inputs {
         for (index, bit) in input.chars().enumerate() {
             match bit {
                 '1' => result[index] += 1,
@@ -88,10 +94,9 @@ fn solve_day_3(task: i8, raw_inputs: Vec<String>) -> i32 {
             }
         }
     }
-    let gamma = result.iter().map(|x| if x > &(inputs_size / 2) {1} else {0}).fold(0, |acc, bit| (acc << 1) ^ bit);
-    let epsilon = result.iter().map(|x| if x < &(inputs_size / 2) {1} else {0}).fold(0, |acc, bit| (acc << 1) ^ bit);
-    return gamma * epsilon
+    return result;
 }
+
 
 fn main() {
     let selector = DayTaskSelector::new(env::args()).unwrap_or_else(|err| {
