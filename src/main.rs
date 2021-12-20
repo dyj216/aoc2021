@@ -79,9 +79,18 @@ fn solve_day_2(task: i8, raw_inputs: Vec<String>) -> i32 {
 fn solve_day_3(task: i8, raw_inputs: Vec<String>) -> i32 {
     let inputs_size = raw_inputs.len() as i32;
     let mut result = count_bits_in_binary_inputs(raw_inputs);
-    let gamma = result.iter().map(|x| if x > &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
-    let epsilon = result.iter().map(|x| if x < &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
-    return gamma * epsilon;
+    match task {
+        1 => {
+            let gamma = result.iter().map(|x| if x > &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
+            let epsilon = result.iter().map(|x| if x < &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
+            return gamma * epsilon;
+        }
+        2 => {
+            let mut reduced_for_o2 = raw_inputs.clone();
+            return 6
+        }
+        _ => panic!("incorrect task")
+    }
 }
 
 fn count_bits_in_binary_inputs(inputs: Vec<String>) -> Vec<i32> {
