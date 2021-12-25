@@ -78,22 +78,54 @@ fn solve_day_2(task: i8, raw_inputs: Vec<String>) -> i32 {
 
 fn solve_day_3(task: i8, raw_inputs: Vec<String>) -> i32 {
     let inputs_size = raw_inputs.len() as i32;
-    let mut result = count_bits_in_binary_inputs(raw_inputs);
+    let mut bitcount_at_positions = count_bits_in_binary_inputs(&raw_inputs);
     match task {
         1 => {
-            let gamma = result.iter().map(|x| if x > &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
-            let epsilon = result.iter().map(|x| if x < &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
+            let gamma = bitcount_at_positions.iter().map(|x| if x > &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
+            let epsilon = bitcount_at_positions.iter().map(|x| if x < &(inputs_size / 2) { 1 } else { 0 }).fold(0, |acc, bit| (acc << 1) ^ bit);
             return gamma * epsilon;
         }
         2 => {
             let mut reduced_for_o2 = raw_inputs.clone();
-            return 6
+            let mut reduced_for_co2 = raw_inputs.clone();
+            let original_bitcount_at_positions = bitcount_at_positions.clone();
+
+            let mut i = 0;
+            while reduced_for_o2.len() != 1 {
+                if bitcount_at_positions[i] >= if reduced_for_o2.len() % 2 == 0 { reduced_for_o2.len() / 2 } else { (reduced_for_o2.len() + 1) / 2 } as i32 {
+                    reduced_for_o2.retain(|x| filter_bits(x, i, '1'))
+                } else {
+                    reduced_for_o2.retain(|x| filter_bits(x, i, '0'))
+                }
+                bitcount_at_positions = count_bits_in_binary_inputs(&reduced_for_o2);
+                i += 1;
+            }
+            i = 0;
+            bitcount_at_positions = original_bitcount_at_positions;
+            while reduced_for_co2.len() != 1 {
+                if bitcount_at_positions[i] >= if reduced_for_co2.len() % 2 == 0 { reduced_for_co2.len() / 2 } else { (reduced_for_co2.len() + 1) / 2 } as i32 {
+                    reduced_for_co2.retain(|x| filter_bits(x, i, '0'))
+                } else {
+                    reduced_for_co2.retain(|x| filter_bits(x, i, '1'))
+                }
+                bitcount_at_positions = count_bits_in_binary_inputs(&reduced_for_co2);
+                i += 1;
+            }
+            return isize::from_str_radix(reduced_for_o2[0].as_str(), 2).unwrap() as i32
+                * isize::from_str_radix(reduced_for_co2[0].as_str(), 2).unwrap() as i32;
         }
         _ => panic!("incorrect task")
     }
 }
 
-fn count_bits_in_binary_inputs(inputs: Vec<String>) -> Vec<i32> {
+fn filter_bits(bits: &String, position: usize, bit_to_keep: char) -> bool {
+    if bits.chars().nth(position).unwrap() == bit_to_keep {
+        return true;
+    }
+    return false;
+}
+
+fn count_bits_in_binary_inputs(inputs: &Vec<String>) -> Vec<i32> {
     let mut result = vec![0; 12];
     for input in inputs {
         for (index, bit) in input.chars().enumerate() {
