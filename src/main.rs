@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::str;
 use std::env;
@@ -138,6 +139,72 @@ fn count_bits_in_binary_inputs(inputs: &Vec<String>) -> Vec<i32> {
     return result;
 }
 
+// fn solve_test(task: i8, raw_inputs: Vec<String>) -> i32 {
+//     let mut a = vec![1, 2, 3];
+//     for i in &mut a {
+//         // iterate mutably
+//         let i: &mut i32 = i; // elements are mutable pointers
+//         *i *= 2;
+//         println!("{}", i);
+//     }
+//     return 5
+// }
+
+fn solve_day_4(task: i8, raw_inputs: Vec<String>) -> i32 {
+    let mut winner_number: i32 = 0;
+    let mut winner_table: i32 = 0;
+    let (bingo_numbers, mut bingo_tables) = process_bingo_data(raw_inputs);
+    'bingo: for bingo_number in bingo_numbers {
+        for (_, bingo_table) in &mut bingo_tables {
+            for bingo_line in &mut *bingo_table {
+                for n in &mut *bingo_line {
+                    if *n == bingo_number {
+                        *n = 0;
+                    }
+                }
+            }
+        }
+        for (table_number, bingo_table) in &mut bingo_tables {
+            for bingo_line in &mut *bingo_table {
+                if bingo_line.iter().all(|&x| x == 0) {
+                    winner_number = bingo_number;
+                    winner_table = *table_number;
+                    break 'bingo;
+                }
+            }
+            for index  in 0..5 {
+                let sum_of_col = &bingo_table.iter().fold(0, |acc, v| acc + v[index]);
+                if *sum_of_col == 0 {
+                    winner_number = bingo_number;
+                    winner_table = *table_number;
+                    break 'bingo;
+                }
+            }
+        }
+    }
+    let mut leftover_sum = 0;
+    for winner_lines in &bingo_tables[&winner_table] {
+        leftover_sum += winner_lines.iter().sum::<i32>();
+    }
+    return leftover_sum * winner_number;
+}
+
+fn process_bingo_data(raw_inputs: Vec<String>) -> (Vec<i32>, HashMap<i32, Vec<Vec<i32>>>) {
+    let bingo_numbers: Vec<i32> = raw_inputs[0].split(",").map(|x| x.parse::<i32>().unwrap()).collect();
+    let mut bingo_tables: HashMap<i32, Vec<Vec<i32>>> = HashMap::new();
+
+    let mut table_number = 0;
+    for (index, line) in raw_inputs[2..].iter().enumerate() {
+        if index % 6 == 0 {
+            table_number = (index / 6) as i32;
+            bingo_tables.insert(table_number, vec![]);
+        }
+        if index % 6 < 5 {
+            bingo_tables.get_mut(&table_number).unwrap().push(line.split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect())
+        }
+    }
+    return (bingo_numbers, bingo_tables)
+}
 
 fn main() {
     let selector = DayTaskSelector::new(env::args()).unwrap_or_else(|err| {
@@ -146,9 +213,11 @@ fn main() {
     });
     let raw_inputs = read_input_file(&format!("day/{}/input", selector.day));
     match selector.day {
+        // 0 => println!("{}", solve_test(selector.task, raw_inputs)),
         1 => println!("{}", solve_day_1(selector.task, raw_inputs)),
         2 => println!("{}", solve_day_2(selector.task, raw_inputs)),
         3 => println!("{}", solve_day_3(selector.task, raw_inputs)),
+        4 => println!("{}", solve_day_4(selector.task, raw_inputs)),
         _ => println!("Not implemented (yet)")
     }
 }
