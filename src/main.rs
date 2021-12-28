@@ -221,11 +221,12 @@ fn process_bingo_data(raw_inputs: Vec<String>) -> (Vec<i32>, HashMap<i32, Vec<Ve
 }
 
 fn solve_day_5(task: i8, raw_inputs: Vec<String>) -> i32 {
-    let vent_map: Vec<i32> = process_vent_map(raw_inputs);
+    if task != 1 && task != 2 { panic!("incorrect task") }
+    let vent_map: Vec<i32> = process_vent_map(task, raw_inputs);
     return vent_map.iter().fold(0, |acc, &x| acc + if x > 1 { 1 } else { 0 });
 }
 
-fn process_vent_map(raw_inputs: Vec<String>) -> Vec<i32> {
+fn process_vent_map(task: i8, raw_inputs: Vec<String>) -> Vec<i32> {
     let mut vent_map = vec![0; 1000 * 1000];
     for input in raw_inputs {
         let coords: Vec<&str> = input.split(" -> ").collect();
@@ -246,6 +247,20 @@ fn process_vent_map(raw_inputs: Vec<String>) -> Vec<i32> {
             for y in y_lil..=y_big {
                 for x in x_lil..=x_big {
                     vent_map[(y * 1000 + x) as usize] += 1;
+                }
+            }
+        } else {
+            if task == 2 {
+                let mut x = x1;
+                let mut y = y1;
+                let x_sign = (x2 - x1).signum();
+                let y_sign = (y2 - y1).signum();
+                while x != x2 + x_sign && y != y2 + y_sign {
+                    let index = (y * 1000 + x) as usize;
+                    vent_map[index] += 1;
+                    println!("{}: {}", index, vent_map[index]);
+                    x += x_sign;
+                    y += y_sign;
                 }
             }
         }
