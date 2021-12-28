@@ -151,7 +151,7 @@ fn count_bits_in_binary_inputs(inputs: &Vec<String>) -> Vec<i32> {
 // }
 
 fn solve_day_4(task: i8, raw_inputs: Vec<String>) -> i32 {
-    if task != 1 && task != 2 {panic!("incorrect task")}
+    if task != 1 && task != 2 { panic!("incorrect task") }
     let mut winner_number: i32 = 0;
     let mut winner_table: i32 = 0;
     let (bingo_numbers, mut bingo_tables) = process_bingo_data(raw_inputs);
@@ -171,7 +171,7 @@ fn solve_day_4(task: i8, raw_inputs: Vec<String>) -> i32 {
                 if bingo_line.iter().all(|&x| x == 0) {
                     winner_number = bingo_number;
                     winner_table = *table_number;
-                    if task == 1 {break 'bingo;}
+                    if task == 1 { break 'bingo; }
                     if task == 2 {
                         won_tables.insert(winner_table);
                         if bingo_tables.keys().all(|k| won_tables.contains(&k)) {
@@ -180,12 +180,12 @@ fn solve_day_4(task: i8, raw_inputs: Vec<String>) -> i32 {
                     }
                 }
             }
-            for index  in 0..5 {
+            for index in 0..5 {
                 let sum_of_col = &bingo_table.iter().fold(0, |acc, v| acc + v[index]);
                 if *sum_of_col == 0 {
                     winner_number = bingo_number;
                     winner_table = *table_number;
-                    if task == 1 {break 'bingo;}
+                    if task == 1 { break 'bingo; }
                     if task == 2 {
                         won_tables.insert(winner_table);
                         if bingo_tables.keys().all(|k| won_tables.contains(&k)) {
@@ -217,7 +217,40 @@ fn process_bingo_data(raw_inputs: Vec<String>) -> (Vec<i32>, HashMap<i32, Vec<Ve
             bingo_tables.get_mut(&table_number).unwrap().push(line.split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect())
         }
     }
-    return (bingo_numbers, bingo_tables)
+    return (bingo_numbers, bingo_tables);
+}
+
+fn solve_day_5(task: i8, raw_inputs: Vec<String>) -> i32 {
+    let vent_map: Vec<i32> = process_vent_map(raw_inputs);
+    return vent_map.iter().fold(0, |acc, &x| acc + if x > 1 { 1 } else { 0 });
+}
+
+fn process_vent_map(raw_inputs: Vec<String>) -> Vec<i32> {
+    let mut vent_map = vec![0; 1000 * 1000];
+    for input in raw_inputs {
+        let coords: Vec<&str> = input.split(" -> ").collect();
+        let x1_y1: Vec<&str> = coords[0].split(",").collect();
+        let x1 = x1_y1[0].parse::<i32>().unwrap();
+        let y1 = x1_y1[1].parse::<i32>().unwrap();
+
+        let x2_y2: Vec<&str> = coords[1].split(",").collect();
+        let x2 = x2_y2[0].parse::<i32>().unwrap();
+        let y2 = x2_y2[1].parse::<i32>().unwrap();
+
+        let x_big = if x1 > x2 { x1 } else { x2 };
+        let x_lil = if x1 < x2 { x1 } else { x2 };
+        let y_big = if y1 > y2 { y1 } else { y2 };
+        let y_lil = if y1 < y2 { y1 } else { y2 };
+
+        if x1 == x2 || y1 == y2 {
+            for y in y_lil..=y_big {
+                for x in x_lil..=x_big {
+                    vent_map[(y * 1000 + x) as usize] += 1;
+                }
+            }
+        }
+    }
+    return vent_map;
 }
 
 fn main() {
@@ -232,6 +265,7 @@ fn main() {
         2 => println!("{}", solve_day_2(selector.task, raw_inputs)),
         3 => println!("{}", solve_day_3(selector.task, raw_inputs)),
         4 => println!("{}", solve_day_4(selector.task, raw_inputs)),
+        5 => println!("{}", solve_day_5(selector.task, raw_inputs)),
         _ => println!("Not implemented (yet)")
     }
 }
