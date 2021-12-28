@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::str;
 use std::env;
@@ -151,9 +151,11 @@ fn count_bits_in_binary_inputs(inputs: &Vec<String>) -> Vec<i32> {
 // }
 
 fn solve_day_4(task: i8, raw_inputs: Vec<String>) -> i32 {
+    if task != 1 && task != 2 {panic!("incorrect task")}
     let mut winner_number: i32 = 0;
     let mut winner_table: i32 = 0;
     let (bingo_numbers, mut bingo_tables) = process_bingo_data(raw_inputs);
+    let mut won_tables: HashSet<i32> = HashSet::new();
     'bingo: for bingo_number in bingo_numbers {
         for (_, bingo_table) in &mut bingo_tables {
             for bingo_line in &mut *bingo_table {
@@ -164,12 +166,18 @@ fn solve_day_4(task: i8, raw_inputs: Vec<String>) -> i32 {
                 }
             }
         }
-        for (table_number, bingo_table) in &mut bingo_tables {
-            for bingo_line in &mut *bingo_table {
+        for (table_number, bingo_table) in &bingo_tables {
+            for bingo_line in bingo_table {
                 if bingo_line.iter().all(|&x| x == 0) {
                     winner_number = bingo_number;
                     winner_table = *table_number;
-                    break 'bingo;
+                    if task == 1 {break 'bingo;}
+                    if task == 2 {
+                        won_tables.insert(winner_table);
+                        if bingo_tables.keys().all(|k| won_tables.contains(&k)) {
+                            break 'bingo;
+                        }
+                    }
                 }
             }
             for index  in 0..5 {
@@ -177,7 +185,13 @@ fn solve_day_4(task: i8, raw_inputs: Vec<String>) -> i32 {
                 if *sum_of_col == 0 {
                     winner_number = bingo_number;
                     winner_table = *table_number;
-                    break 'bingo;
+                    if task == 1 {break 'bingo;}
+                    if task == 2 {
+                        won_tables.insert(winner_table);
+                        if bingo_tables.keys().all(|k| won_tables.contains(&k)) {
+                            break 'bingo;
+                        }
+                    }
                 }
             }
         }
