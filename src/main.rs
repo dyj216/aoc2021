@@ -268,6 +268,37 @@ fn process_vent_map(task: i8, raw_inputs: Vec<String>) -> Vec<i32> {
     return vent_map;
 }
 
+fn solve_day_6(task: i8, raw_input: Vec<String>) -> i64 {
+    let mut simulation_duration = 80;
+    if task == 2 {
+        simulation_duration = 256;
+    }
+    let mut lantern_fish = process_lantern_fish(raw_input);
+
+    for _ in 0..simulation_duration {
+        let mut progeny_fish = 0;
+        for j in 0..lantern_fish.len() - 1 {
+            if j == 0 {
+                progeny_fish = lantern_fish[j];
+            }
+            lantern_fish[j] = lantern_fish[j + 1];
+        }
+        lantern_fish[6] += progeny_fish;
+        lantern_fish[8] = progeny_fish;
+    }
+    return lantern_fish.iter().sum();
+}
+
+fn process_lantern_fish(raw_input: Vec<String>) -> Vec<i64> {
+    let mut sorted_input = raw_input[0].split(",").map(|x| x.parse::<i32>().unwrap()).collect::<Vec<_>>();
+    sorted_input.sort();
+    let mut lantern_fish = vec![0; 9];
+    for i in sorted_input {
+        lantern_fish[i as usize] += 1;
+    }
+    return lantern_fish;
+}
+
 fn main() {
     let selector = DayTaskSelector::new(env::args()).unwrap_or_else(|err| {
         println!("Problem parsing arguments: {}", err);
@@ -281,6 +312,7 @@ fn main() {
         3 => println!("{}", solve_day_3(selector.task, raw_inputs)),
         4 => println!("{}", solve_day_4(selector.task, raw_inputs)),
         5 => println!("{}", solve_day_5(selector.task, raw_inputs)),
+        6 => print!("{}", solve_day_6(selector.task, raw_inputs)),
         _ => println!("Not implemented (yet)")
     }
 }
