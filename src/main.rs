@@ -314,6 +314,12 @@ fn solve_day_7(task: i8, raw_inputs: Vec<String>) -> i32 {
     };
 }
 
+fn solve_day_8(task: i8, raw_inputs: Vec<String>) -> i32 {
+    let outputs = raw_inputs.iter().map(|line| line.split(" | ")).map(|split_line| split_line.collect::<Vec<&str>>()[1].to_string()).collect::<Vec<String>>();
+    let digits = outputs.iter().flat_map(|output| output.split(" ").map(|s| s.to_string()).collect::<Vec<String>>()).collect::<Vec<String>>();
+    return digits.iter().filter(|digit| digit.len() == 2 || digit.len() == 3 || digit.len() == 4 || digit.len() == 7).count() as i32
+}
+
 fn main() {
     let selector = DayTaskSelector::new(env::args()).unwrap_or_else(|err| {
         println!("Problem parsing arguments: {}", err);
@@ -329,6 +335,7 @@ fn main() {
         5 => println!("{}", solve_day_5(selector.task, raw_inputs)),
         6 => print!("{}", solve_day_6(selector.task, raw_inputs)),
         7 => print!("{}", solve_day_7(selector.task, raw_inputs)),
+        8 => print!("{}", solve_day_8(selector.task, raw_inputs)),
         _ => println!("Not implemented (yet)")
     }
 }
