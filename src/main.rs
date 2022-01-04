@@ -299,6 +299,21 @@ fn process_lantern_fish(raw_input: Vec<String>) -> Vec<i64> {
     return lantern_fish;
 }
 
+fn solve_day_7(task: i8, raw_inputs: Vec<String>) -> i32 {
+    if task != 1 && task != 2 { panic!("incorrect task") }
+    let mut int_input: Vec<i32> = raw_inputs[0].split(",").map(|x| x.parse::<i32>().unwrap()).collect::<Vec<_>>();
+    int_input.sort();
+    return if task == 1 {
+        let median = int_input[int_input.len() / 2];
+        int_input.iter().map(|x| (x - median).abs()).collect::<Vec<_>>().iter().sum()
+    } else {
+        let rounded_mean: i32 = (int_input.iter().sum::<i32>() as f32 / int_input.len() as f32).round() as i32;
+        let option1 = int_input.iter().map(|x| (0..=(x - rounded_mean).abs()).sum()).collect::<Vec<_>>().iter().sum();
+        let option2 = int_input.iter().map(|x| (0..=(x - rounded_mean + 1).abs()).sum()).collect::<Vec<_>>().iter().sum();
+        return if option1 < option2 { option1 } else { option2 };
+    };
+}
+
 fn main() {
     let selector = DayTaskSelector::new(env::args()).unwrap_or_else(|err| {
         println!("Problem parsing arguments: {}", err);
@@ -313,6 +328,7 @@ fn main() {
         4 => println!("{}", solve_day_4(selector.task, raw_inputs)),
         5 => println!("{}", solve_day_5(selector.task, raw_inputs)),
         6 => print!("{}", solve_day_6(selector.task, raw_inputs)),
+        7 => print!("{}", solve_day_7(selector.task, raw_inputs)),
         _ => println!("Not implemented (yet)")
     }
 }
