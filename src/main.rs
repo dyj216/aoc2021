@@ -315,9 +315,83 @@ fn solve_day_7(task: i8, raw_inputs: Vec<String>) -> i32 {
 }
 
 fn solve_day_8(task: i8, raw_inputs: Vec<String>) -> i32 {
-    let outputs = raw_inputs.iter().map(|line| line.split(" | ")).map(|split_line| split_line.collect::<Vec<&str>>()[1].to_string()).collect::<Vec<String>>();
-    let digits = outputs.iter().flat_map(|output| output.split(" ").map(|s| s.to_string()).collect::<Vec<String>>()).collect::<Vec<String>>();
-    return digits.iter().filter(|digit| digit.len() == 2 || digit.len() == 3 || digit.len() == 4 || digit.len() == 7).count() as i32
+    match task {
+        1 => {
+            let outputs = raw_inputs.iter().map(|line| line.split(" | ")).map(|split_line| split_line.collect::<Vec<&str>>()[1].to_string()).collect::<Vec<String>>();
+            let digits = outputs.iter().flat_map(|output| output.split(" ").map(|s| s.to_string()).collect::<Vec<String>>()).collect::<Vec<String>>();
+            return digits.iter().filter(|digit| digit.len() == 2 || digit.len() == 3 || digit.len() == 4 || digit.len() == 7).count() as i32
+        }
+        2 => {
+            let mut result = 0;
+            for line in raw_inputs {
+                let line_parts: Vec<&str> = line.split(" | ").collect();
+                let inputs = line_parts[0].to_string();
+                let outputs = line_parts[1].to_string();
+                let mut map: HashMap<i32, &HashSet<char>> = HashMap::new();
+                let digits = inputs.split(" ").map(|x| x.to_string().chars().collect::<HashSet<char>>()).collect::<Vec<HashSet<char>>>();
+                for digit in &digits {
+                    match digit.len() {
+                        2 => {map.insert(1, digit); 1},
+                        3 => {map.insert(7, digit); 1},
+                        4 => {map.insert(4, digit); 1},
+                        7 => {map.insert(8, digit); 1},
+                        _ => 1
+                    };
+                }
+                for digit in &digits {
+                    match digit.len() {
+                        6 => {
+                            // println!("difference: {}", map[&8].difference(&map[&7]).collect::<String>());
+                            // println!("digit: {}", digit.iter().collect::<String>());
+                            // println!("map[&8]: {}", map[&8].iter().collect::<String>());
+                            // println!("map[&7]: {}", map[&7].iter().collect::<String>());
+                            // println!("difference map8 and map7: {}", map[&8].difference(&map[&7]).collect::<String>());
+                            // println!("difference digit and map7: {}", digit.difference(&map[&7]).collect::<String>());
+                            // println!("{}", map[&8].difference(&map[&7]).eq(map[&8].difference(digit)));
+                            if map[&8].difference(&map[&7]).collect::<HashSet<&char>>() == digit.difference(&map[&7]).collect::<HashSet<&char>>() {
+                                map.insert(6, digit);
+                            }
+                            else if map[&8].difference(&map[&4]).collect::<HashSet<&char>>() == digit.difference(&map[&4]).collect::<HashSet<&char>>() {
+                                map.insert(0, digit);
+                            }
+                            else {
+                                map.insert(9, digit);
+                            }
+                            Some(1)
+                        },
+                        5 => {
+                            if digit.difference(&map[&1]).count() == 3 {
+                                map.insert(3, digit);
+                            }
+                            else if digit.difference(&map[&4]).count() == 2 {
+                                map.insert(5, digit);
+                            }
+                            else {
+                                map.insert(2, digit);
+                            }
+                            Some(1)
+                        }
+                        _ => Some(1)
+                    };
+                }
+                let output_digits = outputs.split(" ").map(|x| x.to_string().chars().collect::<HashSet<char>>()).collect::<Vec<HashSet<char>>>();
+                let mut output = 0;
+                let base: i32 = 10;
+                for (factor, od) in output_digits.iter().enumerate() {
+                    for i in 0..=9 {
+                        if map[&i] == od {
+                            output += i * base.pow(4-1-factor as u32);
+                            break;
+                        }
+                    }
+                }
+                result += output;
+            }
+
+            return result
+        }
+        _ => panic!("incorrect task")
+    }
 }
 
 fn main() {
@@ -333,9 +407,9 @@ fn main() {
         3 => println!("{}", solve_day_3(selector.task, raw_inputs)),
         4 => println!("{}", solve_day_4(selector.task, raw_inputs)),
         5 => println!("{}", solve_day_5(selector.task, raw_inputs)),
-        6 => print!("{}", solve_day_6(selector.task, raw_inputs)),
-        7 => print!("{}", solve_day_7(selector.task, raw_inputs)),
-        8 => print!("{}", solve_day_8(selector.task, raw_inputs)),
+        6 => println!("{}", solve_day_6(selector.task, raw_inputs)),
+        7 => println!("{}", solve_day_7(selector.task, raw_inputs)),
+        8 => println!("{}", solve_day_8(selector.task, raw_inputs)),
         _ => println!("Not implemented (yet)")
     }
 }
